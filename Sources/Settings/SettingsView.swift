@@ -26,7 +26,7 @@ extension View {
 /// crossing-and-notification machinery it switches is Notifications' to
 /// explain.
 private enum SettingsSection: String, CaseIterable, Identifiable, Hashable {
-    case accounts, phone, deepseek, ollama, lmstudio, customEndpoints, appearance, notifications, costs, general
+    case accounts, phone, deepseek, ollama, lmstudio, customEndpoints, appearance, notifications, costs, projects, general
 
     /// The sections the sidebar lists; Phone only once pairing is offered.
     static var visible: [SettingsSection] {
@@ -56,6 +56,7 @@ private enum SettingsSection: String, CaseIterable, Identifiable, Hashable {
         case .appearance:    return L10n.t("Appearance")
         case .notifications: return L10n.t("Notifications")
         case .costs:         return L10n.t("Costs")
+        case .projects:      return L10n.t("Projects")
         case .general:       return L10n.t("General")
         }
     }
@@ -83,6 +84,7 @@ private enum SettingsSection: String, CaseIterable, Identifiable, Hashable {
         case .appearance:    return L10n.t("How the notch looks and where it sits.")
         case .notifications: return L10n.t("What Codenotch tells you, and when.")
         case .costs:         return L10n.t("What each project spent of each login's allowance.")
+        case .projects:      return L10n.t("Pick which Claude Code skills work in each project.")
         case .general:       return L10n.t("Startup, updates and everything else.")
         }
     }
@@ -98,6 +100,7 @@ private enum SettingsSection: String, CaseIterable, Identifiable, Hashable {
         case .appearance:    return "paintbrush.fill"
         case .notifications: return "bell.badge.fill"
         case .costs:         return "banknote.fill"
+        case .projects:      return "folder.fill.badge.gearshape"
         case .general:       return "gearshape.fill"
         }
     }
@@ -116,6 +119,7 @@ private enum SettingsSection: String, CaseIterable, Identifiable, Hashable {
         case .appearance:    return .indigo
         case .notifications: return .red
         case .costs:         return .mint
+        case .projects:      return .brown
         case .general:       return .gray
         }
     }
@@ -726,6 +730,7 @@ struct SettingsView: View {
             CustomEndpointsSettingsView(preferences: preferences)
         case .appearance:    appearancePane
         case .notifications: notificationsPane
+        case .projects:      ProjectsSettingsView()
         case .general:       generalPane
         }
     }
