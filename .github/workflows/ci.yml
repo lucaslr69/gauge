@@ -36,10 +36,26 @@ jobs:
       - name: Install xcbeautify
         run: brew install xcbeautify
 
-      - name: Build for testing
+      # Pre-build the app host so build-for-testing finds the TEST_HOST
+      # Codenotch.app already sitting in DerivedData. Cold-cache runners
+      # fail xcodebuild's pre-flight for `test` otherwise, before any
+      # Swift gets a chance to compile.
+      - name: Build app host
         run: |
           set -o pipefail
           make gen
+          xcodebuild \
+            -project Codenotch.xcodeproj \
+            -target Codenotch \
+            -destination 'platform=macOS,arch=arm64' \
+            -configuration Debug \
+            build \
+            CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO \
+            2>&1 | xcbeautify --renderer github-actions
+
+      - name: Build for testing
+        run: |
+          set -o pipefail
           xcodebuild \
             -project Codenotch.xcodeproj \
             -scheme Codenotch \
