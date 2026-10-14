@@ -30,20 +30,34 @@ jobs:
       - name: Check local signing detection
         run: bash Scripts/test-signing.sh
 
-      # Builds first with verbose output, so a Swift compile error surfaces
-      # here instead of hiding behind xcodebuild's "Could not find test host"
-      # when the test action tries to run against an un-built app.
+      # Builds first with a result bundle, and on failure asks xcresulttool
+      # to print the diagnostics — xcodebuild on its own collapses a failed
+      # build into "Could not find test host" and leaves the real reason in
+      # the bundle only.
       - name: Build for testing
         run: |
           set -o pipefail
           make gen
+          rm -rf /tmp/build.xcresult
           xcodebuild \
             -project Codenotch.xcodeproj \
             -scheme Codenotch \
             -destination 'platform=macOS,arch=arm64' \
             -configuration Debug \
+            -resultBundlePath /tmp/build.xcresult \
             build-for-testing \
-            CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
+            CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO \
+            || { \
+              echo "--- xcresult diagnostics ---"; \
+              xcrun xcresulttool get build-results \
+                --path /tmp/build.xcresult \
+                --format json 2>/dev/null \
+                | python3 -c 'import json,sys; r=json.load(sys.stdin); \
+                              [print(i.get("issueType","?"), "-", i.get("message","")) for i in r.get("issues",{}).get("errors",[])]; \
+                              [print("warn:", i.get("message","")) for i in r.get("issues",{}).get("warnings",[])[:10]]' \
+                || xcrun xcresulttool get --path /tmp/build.xcresult --format json | head -200; \
+              exit 1; \
+            }
 
       # Unsigned on purpose: no identity exists on a runner, and the tests
       # read fixtures rather than keychains — see `make test-ci`.
