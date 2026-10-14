@@ -30,6 +30,21 @@ jobs:
       - name: Check local signing detection
         run: bash Scripts/test-signing.sh
 
+      # Builds first with verbose output, so a Swift compile error surfaces
+      # here instead of hiding behind xcodebuild's "Could not find test host"
+      # when the test action tries to run against an un-built app.
+      - name: Build for testing
+        run: |
+          set -o pipefail
+          make gen
+          xcodebuild \
+            -project Codenotch.xcodeproj \
+            -scheme Codenotch \
+            -destination 'platform=macOS,arch=arm64' \
+            -configuration Debug \
+            build-for-testing \
+            CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
+
       # Unsigned on purpose: no identity exists on a runner, and the tests
       # read fixtures rather than keychains — see `make test-ci`.
       - name: Run unit tests
