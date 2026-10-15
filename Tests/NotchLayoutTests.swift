@@ -538,7 +538,8 @@ final class PreferencesTests: XCTestCase {
     }
 
     func testAccentColorFollowsTheDeviceByDefault() {
-        XCTAssertEqual(preferences().accentColor, .system)
+        // Fork default: the signature teal, not the device accent.
+        XCTAssertEqual(preferences().accentColor, .gauge)
     }
 
     func testAccentColorChoiceSurvivesARestart() {
@@ -556,7 +557,8 @@ final class PreferencesTests: XCTestCase {
         defaults.removePersistentDomain(forName: name)
         defaults.set("ultraviolet", forKey: "accentColor")
 
-        XCTAssertEqual(Preferences(defaults: defaults).accentColor, .system)
+        // Fork default — see `testAccentColorFollowsTheDeviceByDefault`.
+        XCTAssertEqual(Preferences(defaults: defaults).accentColor, .gauge)
     }
 
     func testSurfaceStyleDefaultsToLiquidGlass() {
