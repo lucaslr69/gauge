@@ -144,13 +144,13 @@ targets:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.vinz.codenotch.tests
         GENERATE_INFOPLIST_FILE: "YES"
-        # Hosted test bundle: both are needed so xcodebuild's pre-flight
-        # for `test` / `build-for-testing` resolves the host before build.
-        # xcodegen fills these in from `dependencies: - target: Codenotch`
-        # most of the time, but a cold DerivedData on macos-26 runners is
-        # one of the cases where "Could not find test host" fires before
-        # any Swift compiles — pinning them here keeps CI deterministic.
-        TEST_HOST: $(BUILT_PRODUCTS_DIR)/Codenotch.app/Contents/MacOS/Codenotch
+        # Hosted test bundle. The host product is named Gauge, not
+        # Codenotch — the target is Codenotch but PRODUCT_NAME is Gauge,
+        # so the built app bundle is Gauge.app and the executable inside
+        # is Gauge. Pointing TEST_HOST at Codenotch.app made xcodebuild's
+        # pre-flight for `build-for-testing` fail with "Could not find
+        # test host" every time on macos-26 runners.
+        TEST_HOST: $(BUILT_PRODUCTS_DIR)/Gauge.app/Contents/MacOS/Gauge
         BUNDLE_LOADER: $(TEST_HOST)
 
 schemes:

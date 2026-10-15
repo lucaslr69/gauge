@@ -36,26 +36,10 @@ jobs:
       - name: Install xcbeautify
         run: brew install xcbeautify
 
-      # Pre-build the scheme so the Codenotch.app sits in DerivedData
-      # before build-for-testing evaluates its TEST_HOST pre-flight.
-      # Using -scheme (not -target) preserves SwiftPM resolution for
-      # the swift-nio / swift-collections / swift-atomics graph.
-      - name: Build app host
-        run: |
-          set -o pipefail
-          make gen
-          xcodebuild \
-            -project Codenotch.xcodeproj \
-            -scheme Codenotch \
-            -destination 'platform=macOS,arch=arm64' \
-            -configuration Debug \
-            build \
-            CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO \
-            2>&1 | xcbeautify --renderer github-actions
-
       - name: Build for testing
         run: |
           set -o pipefail
+          make gen
           xcodebuild \
             -project Codenotch.xcodeproj \
             -scheme Codenotch \
