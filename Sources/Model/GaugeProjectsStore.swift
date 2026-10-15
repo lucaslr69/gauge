@@ -76,7 +76,10 @@ final class GaugeProjectsStore {
         list.filter { $0.id != id }
     }
 
-    private func canonical(_ url: URL) -> URL {
-        url.resolvingSymlinksInPath().standardizedFileURL
+    private func canonical(_ url: URL) -> String {
+        // `.path` normalises trailing slashes — "/tmp/foo" and "/tmp/foo/"
+        // are the same directory, but as `URL` values they would compare
+        // non-equal because of the trailing component.
+        url.resolvingSymlinksInPath().standardizedFileURL.path
     }
 }
