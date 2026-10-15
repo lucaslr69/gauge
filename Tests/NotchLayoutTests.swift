@@ -538,10 +538,7 @@ final class PreferencesTests: XCTestCase {
     }
 
     func testAccentColorFollowsTheDeviceByDefault() {
-        // The Gauge fork's default is `.gauge` (the signature teal), not
-        // the device accent — the fork renamed the product and promoted
-        // its own colour to the first-launch default.
-        XCTAssertEqual(preferences().accentColor, .gauge)
+        XCTAssertEqual(preferences().accentColor, .system)
     }
 
     func testAccentColorChoiceSurvivesARestart() {
@@ -559,8 +556,7 @@ final class PreferencesTests: XCTestCase {
         defaults.removePersistentDomain(forName: name)
         defaults.set("ultraviolet", forKey: "accentColor")
 
-        // Fork's default — see `testAccentColorFollowsTheDeviceByDefault`.
-        XCTAssertEqual(Preferences(defaults: defaults).accentColor, .gauge)
+        XCTAssertEqual(Preferences(defaults: defaults).accentColor, .system)
     }
 
     func testSurfaceStyleDefaultsToLiquidGlass() {
