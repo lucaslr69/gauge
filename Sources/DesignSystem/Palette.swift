@@ -36,7 +36,11 @@ enum Palette {
     // warmer red — still unmistakable as pressure, less shouty under the clean
     // minimalist look.
     static let amplePair: (dark: UInt32, light: UInt32) = (0x4FBFB3, 0x2FA093)
-    static let watchPair: (dark: UInt32, light: UInt32) = (0xF2C14E, 0xB0821E)
+    // Watch green sits at 0xBE (190) rather than the original 0xC1 (193) so
+    // the ramp stays monotonically descending in green from ample (0xBF = 191)
+    // through watch to critical (0x5A = 90). The 3-level shift is invisible
+    // to the eye but is what `testRampIsMonotonicAcrossTheWholeRange` checks.
+    static let watchPair: (dark: UInt32, light: UInt32) = (0xF2BE4E, 0xB0821E)
     /// Already 3.5:1 on white, so the warning colour is the same in both.
     static let criticalPair: (dark: UInt32, light: UInt32) = (0xFF5A3C, 0xFF5A3C)
 

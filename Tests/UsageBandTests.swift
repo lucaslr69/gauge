@@ -74,33 +74,37 @@ final class UsageBandTests: XCTestCase {
     /// is defined by its own anchors: exact green at 0%, exact yellow at the watch limit, exact
     /// red only at 100%.
     func testRampAnchorsExactlyAtItsThreePoints() {
-        assertRampHex(0.0, is: 0x00FF88)
-        assertRampHex(0.50, is: 0xF2FF00) // exactly watch's colour, at the watch limit
-        assertRampHex(1.0, is: 0xFF3F00)
+        // Gauge palette anchors — teal, muted amber, warmer red.
+        assertRampHex(0.0, is: 0x4FBFB3)
+        assertRampHex(0.50, is: 0xF2BE4E) // exactly watch's colour, at the watch limit
+        assertRampHex(1.0, is: 0xFF5A3C)
     }
 
     /// The default critical limit (70%) is deliberately *not* where the ramp turns pure red any
     /// more — that would put the whole second half back in the narrow band this change was
     /// meant to widen. At 70% it is most of the way there, not there yet.
     func testRampIsNotPinnedToTheCriticalLimit() {
-        assertRampHex(0.70, is: 0xF7B200)
+        // 0.70 → 40% between watch (0xF2BE4E) and critical (0xFF5A3C).
+        assertRampHex(0.70, is: 0xF79647)
     }
 
     /// The ramp has to move with a customised watch limit, not just the default — the Mac
     /// already lets the user drag it (`SettingsView`'s "Usage Limits" slider).
     func testRampFollowsACustomWatchLimit() {
-        assertRampHex(0.0, is: 0x00FF88, watchLimit: 0.30)
-        assertRampHex(0.30, is: 0xF2FF00, watchLimit: 0.30) // exact yellow, at the custom limit
-        assertRampHex(0.65, is: 0xF99F00, watchLimit: 0.30) // ramp's own midpoint past the limit
-        assertRampHex(1.0, is: 0xFF3F00, watchLimit: 0.30)
+        assertRampHex(0.0, is: 0x4FBFB3, watchLimit: 0.30)
+        assertRampHex(0.30, is: 0xF2BE4E, watchLimit: 0.30) // exact watch, at the custom limit
+        assertRampHex(0.65, is: 0xF88C45, watchLimit: 0.30) // ramp's own midpoint past the limit
+        assertRampHex(1.0, is: 0xFF5A3C, watchLimit: 0.30)
     }
 
     /// No bounce across the whole range: red only rises, green and blue only fall, so the ramp
     /// reads as one steady climb from ample to critical rather than a wobble.
     func testRampIsMonotonicAcrossTheWholeRange() {
-        var previousGreen = 255.0
-        var previousBlue = 136.0
-        var previousRed = 0.0
+        // Seeded at ample.dark (0x4FBFB3) — the ramp starts there and
+        // only moves away: red climbs, green and blue fall.
+        var previousGreen = 191.0
+        var previousBlue = 179.0
+        var previousRed = 79.0
         for step in 0...40 {
             let f = Double(step) / 40
             guard let c = resolveRamp(f) else { XCTFail("ramp did not resolve"); return }
@@ -126,9 +130,11 @@ final class PaletteAppearanceTests: XCTestCase {
     func testTheDarkAppearanceKeepsTheFramesHexes() {
         assertOpaque(Palette.textPrimary, .darkAqua, is: 0xFFFFFF)
         assertOpaque(Palette.textSecondary, .darkAqua, is: 0x808080)
-        assertOpaque(Palette.ample, .darkAqua, is: 0x00FF88)
-        assertOpaque(Palette.watch, .darkAqua, is: 0xF2FF00)
-        assertOpaque(Palette.critical, .darkAqua, is: 0xFF3F00)
+        // Gauge fork palette — teal ample, muted amber watch, warmer red
+        // critical. See `Sources/DesignSystem/Palette.swift`.
+        assertOpaque(Palette.ample, .darkAqua, is: 0x4FBFB3)
+        assertOpaque(Palette.watch, .darkAqua, is: 0xF2BE4E)
+        assertOpaque(Palette.critical, .darkAqua, is: 0xFF5A3C)
 
         // #303030 and #2D2D2D over black, so the solid style is unchanged.
         assertTrack(Palette.ringTrack, .darkAqua, white: 1, alpha: 0.188)
@@ -138,9 +144,10 @@ final class PaletteAppearanceTests: XCTestCase {
     func testTheLightAppearanceHasItsOwnInk() {
         assertOpaque(Palette.textPrimary, .aqua, is: 0x000000)
         assertOpaque(Palette.textSecondary, .aqua, is: 0x6B6B6B)
-        assertOpaque(Palette.ample, .aqua, is: 0x00A356)
-        assertOpaque(Palette.watch, .aqua, is: 0xB08800)
-        assertOpaque(Palette.critical, .aqua, is: 0xFF3F00)
+        // Gauge fork palette — see dark-aqua test above.
+        assertOpaque(Palette.ample, .aqua, is: 0x2FA093)
+        assertOpaque(Palette.watch, .aqua, is: 0xB0821E)
+        assertOpaque(Palette.critical, .aqua, is: 0xFF5A3C)
 
         assertTrack(Palette.ringTrack, .aqua, white: 0, alpha: 0.16)
         assertTrack(Palette.barTrack, .aqua, white: 0, alpha: 0.15)
