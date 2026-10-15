@@ -121,6 +121,11 @@ targets:
         # the login-keychain ACL and the stored preferences all key off those,
         # so renaming only the product keeps settings and builds intact.
         PRODUCT_NAME: Gauge
+        # Keeps the Swift module name as "Codenotch" even though PRODUCT_NAME
+        # is "Gauge" — every test file imports `@testable import Codenotch`,
+        # and without this pin the module would silently rename to Gauge and
+        # 70+ tests would fail to compile.
+        PRODUCT_MODULE_NAME: Codenotch
         GENERATE_INFOPLIST_FILE: "NO"
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         SWIFT_EMIT_LOC_STRINGS: "YES"
@@ -144,6 +149,14 @@ targets:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.vinz.codenotch.tests
         GENERATE_INFOPLIST_FILE: "YES"
+        # Hosted test bundle. The host product is named Gauge, not
+        # Codenotch — the target is Codenotch but PRODUCT_NAME is Gauge,
+        # so the built app bundle is Gauge.app and the executable inside
+        # is Gauge. Pointing TEST_HOST at Codenotch.app made xcodebuild's
+        # pre-flight for `build-for-testing` fail with "Could not find
+        # test host" every time on macos-26 runners.
+        TEST_HOST: $(BUILT_PRODUCTS_DIR)/Gauge.app/Contents/MacOS/Gauge
+        BUNDLE_LOADER: $(TEST_HOST)
 
 schemes:
   Codenotch:

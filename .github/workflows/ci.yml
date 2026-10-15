@@ -7,7 +7,7 @@ on:
 
 jobs:
   test:
-    if: github.repository == 'vinzdg/codenotch'
+    if: github.repository == 'vinzdg/codenotch' || github.repository == 'lucaslr69/gauge'
     name: Unit tests
     # macOS 26, because that is what the app targets. An older image ships an
     # Xcode that cannot read the project at all — `objectVersion 77` is a
@@ -29,6 +29,25 @@ jobs:
 
       - name: Check local signing detection
         run: bash Scripts/test-signing.sh
+
+      # Formats xcodebuild's output through xcbeautify so Swift compile
+      # errors show up in the step log instead of hiding behind the
+      # "Could not find test host" summary line.
+      - name: Install xcbeautify
+        run: brew install xcbeautify
+
+      - name: Build for testing
+        run: |
+          set -o pipefail
+          make gen
+          xcodebuild \
+            -project Codenotch.xcodeproj \
+            -scheme Codenotch \
+            -destination 'platform=macOS,arch=arm64' \
+            -configuration Debug \
+            build-for-testing \
+            CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO \
+            2>&1 | xcbeautify --renderer github-actions
 
       # Unsigned on purpose: no identity exists on a runner, and the tests
       # read fixtures rather than keychains — see `make test-ci`.
