@@ -100,9 +100,11 @@ final class UsageBandTests: XCTestCase {
     /// No bounce across the whole range: red only rises, green and blue only fall, so the ramp
     /// reads as one steady climb from ample to critical rather than a wobble.
     func testRampIsMonotonicAcrossTheWholeRange() {
-        var previousGreen = 255.0
-        var previousBlue = 136.0
-        var previousRed = 0.0
+        // Seeded at ample.dark (0x4FBFB3) — the ramp starts there and
+        // only moves away: red climbs, green and blue fall.
+        var previousGreen = 191.0
+        var previousBlue = 179.0
+        var previousRed = 79.0
         for step in 0...40 {
             let f = Double(step) / 40
             guard let c = resolveRamp(f) else { XCTFail("ramp did not resolve"); return }
